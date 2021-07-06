@@ -22,5 +22,6 @@ Route::get('/', function () {
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Route::get('/admin/settings', [App\Http\Controllers\settingsController::class, 'index']);
-Route::post('/admin/settings/sendNotification', [App\Http\Controllers\settingsController::class, 'sendNotification']);
+Route::get('/wsMonitor', [App\Http\Controllers\wsMonitor::class, 'index']);
+Route::post('/wsMonitor/sendNotification', [App\Http\Controllers\wsMonitor::class, 'sendNotification']);
+Route::post('/wsMonitor/getLog', [App\Http\Controllers\wsMonitor::class, 'getLog']);

@@ -76,8 +76,12 @@
          window.worker.port.postMessage({ action: 'connect', username: currentUser, tab: window.location.href });
 
          window.worker.port.onmessage = function(message) {
-            console.log(message.data);
+            //console.log(message.data);
             $('#notifications a.nav-link span').text(message.data.msg);
+         };
+
+         window.worker.onerror = function(error) {
+            console.log('Worker error: ' + error.message + '\n');
          };
 
          window.addEventListener('beforeunload', function(ev) {

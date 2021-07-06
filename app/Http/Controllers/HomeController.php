@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-//use App\Notifications\createMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-//use Illuminate\Support\Facades\Notification;
 
 class HomeController extends Controller
 {

@@ -273,8 +273,8 @@ return [
 
         ['header' => 'account_settings'],
         [
-            'text' => 'profile',
-            'url'  => 'admin/settings',
+            'text' => 'Monitor',
+            'url'  => '/wsMonitor',
             'icon' => 'fas fa-fw fa-user',
         ],
         [

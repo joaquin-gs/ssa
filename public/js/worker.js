@@ -16,7 +16,6 @@ socket.onopen = function(e) {
 // Event handler fired when the WebSocket Server sends a message to this client.
 socket.onmessage = function(e) {
    var message = JSON.parse(e.data);
-   console.log(message);
    for (var i = 0; i < AllPorts.length; i++) {
       if (message.to.includes(AllPorts[i].user)) {
          AllPorts[i].port.postMessage(message);
@@ -26,15 +25,15 @@ socket.onmessage = function(e) {
 
 socket.onclose = function(event) {
    if (event.wasClean) {
-      console.log('Connection closed normally');
+      console.log('Websocket closed normally');
    }
    else {
-      console.log('Connection closed unexpectedly.');
+      console.log('Websocket closed unexpectedly.');
    }
 };
 
 socket.onerror = function(error) {
-   console.log(error.message);
+   console.log('Error on client websocket: ', error.message);
 };
 
 
@@ -66,7 +65,6 @@ onconnect = function(ev) {
                   socket.send(JSON.stringify({action: 'connect', username: currentUser}));
                }, 650);
             }
-            console.log(AllPorts);
             break;
 
          case "close":
@@ -89,7 +87,6 @@ onconnect = function(ev) {
                // User doesn't have more tabs opened. Remove user from WebSocket Server.
                socket.send(JSON.stringify({action: 'disconnect', username: e.data.username}));
             }
-            console.log(AllPorts);
             break;
 
          case "notify":
@@ -112,4 +109,5 @@ onconnect = function(ev) {
             socket.send(JSON.stringify({action: 'help'}));
       } // switch
    } // port.onmessage
+
 } // onconnect

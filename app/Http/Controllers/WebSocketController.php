@@ -2,9 +2,7 @@
 namespace App\Http\Controllers;
 
 use Ratchet\ConnectionInterface;   /* Provides functions send() and close() */
-use Ratchet\RFC6455\Messaging\MessageInterface;
 use Ratchet\WebSocket\MessageComponentInterface;   /* Provides events onOpen(), onClose(), onError(), onMessage() */
-use Illuminate\Log\LogManager;
 use Illuminate\Support\Facades\Log;
 
 class WebSocketController implements MessageComponentInterface {
@@ -130,6 +128,7 @@ class WebSocketController implements MessageComponentInterface {
 
             default:
                echo "{$this->red}Unrecognized command or action:{$this->white} {$data->action}";
+               $this->Log("Unrecognized command or action: " . $data->action);
          }
       }
    }
@@ -154,7 +153,7 @@ class WebSocketController implements MessageComponentInterface {
    private function showConnectedUsers() {
       $len = count($this->names);
       if ($len > 0) {
-         echo PHP_EOL;
+         //echo PHP_EOL;
          echo "  " . $len . " user" . (($len > 1) ? "s " : " ") . "connected:" . PHP_EOL;
          $i = 1;
          foreach ($this->names as $index => $name) {
@@ -167,10 +166,10 @@ class WebSocketController implements MessageComponentInterface {
 
    private function Log(string $msg) {
       echo $msg . PHP_EOL;
-      echo PHP_EOL;
+      //echo PHP_EOL;
 
-      $msg = str_replace([$this->inverse,$this->bold,$this->reset,$this->red,$this->green,$this->blue,$this->yellow,$this->cyan,$this->white,$this->gray], "", $msg);
-      Log::channel('wss')->info($msg);
+      $msg = str_replace([PHP_EOL, $this->inverse,$this->bold,$this->reset,$this->red,$this->green,$this->blue,$this->yellow,$this->cyan,$this->white,$this->gray], "", $msg);
+      Log::channel('wss')->info(trim($msg));
    }
 
 }
