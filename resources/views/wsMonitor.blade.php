@@ -26,28 +26,28 @@
                   <p>Actions available in this WebSocket Server</p>
                   <p>COMMAND     PARAMETERS</p>
                   <p>----------  --------------------------------</p>
-                  <p>connect     <string>username, <string> tab</p>
-                  <p>  Javascript example: { action: 'connect', username: <user-name>, tab: [window.location.href] }</p>
+                  <p><strong>connect</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;string&gt;username, &lt;string&gt; tab</p>
+                  <p>  Javascript example: { action: 'connect', username: &lt;user-name&gt;, tab: [window.location.href] }</p>
                   <p>  The 'tab' parameter is used to keep track of the opened tabs in the browser.</p>
                   <br/>
-                  <p>disconnect  <string> username</p>
+                  <p><strong>disconnect</strong>&nbsp;&nbsp;&lt;string&gt; username</p>
                   <p>  Javascript example: {action: 'disconnect', username: <user-name>}</p>
                   <br/>
-                  <p>notify      <string> to <string> message</p>
-                  <p>  Javascript example: {action: 'notify', to: <user-name>, message: <your-message>}</p>
+                  <p><strong>notify</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;string&gt; to &lt;string&gt; message</p>
+                  <p>  Javascript example: {action: 'notify', to: &lt;user-name&gt;, message: &lt;your-message&gt;}</p>
                   <br/>
-                  <p>list     </p>
+                  <p><strong>list</strong></p>
                   <p>  Displays the list of connected users.</p>
                   <p>  Javascript example: {action: 'list'}</p>
                   <br/>
-                  <p>help     </p>
+                  <p><strong>help</strong></p>
                   <p>  Displays the this help text.</p>
                   <p>  Javascript example: {action: 'help'}</p>
                </div>
 
                <div>
                </div>
-               
+
                <!--div class="row justify-content-center">
                   <div class="col-sm-3">
                      <button type="button" class="btn btn-outline-primary" id="notifyUser">Notify user</button>
