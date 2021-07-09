@@ -3,6 +3,10 @@
 //--------------------------------------------------------------------
 
 // This array will contain objects in the format {user: <string>, port: <MessagePort>, tabURL: <string>}
+// Such objects are the Tabs the user has opened using links/urls from the same domain.
+// If another browser is opened with the same domain, another variable (array) will be created for that browser
+// and will not include the user and the opened tabs of the first browser. This happens because the thread
+// is not shared between different browsers.
 let AllPorts = [];
 
 // The connection to the WebSocket Server.
@@ -45,13 +49,13 @@ onconnect = function(ev) {
    // Event handler fired when a tab/window sends a message to this Sharedworker.
    port.onmessage = function(e) {
       let currentUser = e.data.username;
-      let userIsConnected = false;
+      var userIsConnected = false;
 
       switch (e.data.action) {
          case "connect":
-            // Check if the received user name is already in the connections list.
-            for (var i = 0; i < AllPorts.length; i++) {
-               if (AllPorts[i].user == currentUser) {
+            // Check if the received user name is already in the tabs list.
+            for (var j = 0; j < AllPorts.length; j++) {
+               if (AllPorts[j].user == currentUser) {
                   userIsConnected = true;
                }
             }
@@ -90,19 +94,11 @@ onconnect = function(ev) {
             break;
 
          case "notify":
-            // Check if the given user is connected.
-            for (var i = 0; i < AllPorts.length; i++) {
-               if (AllPorts[i].user == currentUser) {
-                  userIsConnected = true;
-               }
-            }
-            if (userIsConnected) {
-               socket.send(JSON.stringify({action: 'notify', to: currentUser, message: e.data.message}));
-            }
+            socket.send(JSON.stringify({action: 'notify', to: currentUser, message: e.data.message}));
             break;
 
          case "list":
-            socket.send(JSON.stringify({action: 'list'}));
+            socket.send(JSON.stringify({action: 'list', to: currentUser}));
             break;
          
          case "help":

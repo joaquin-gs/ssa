@@ -46,4 +46,5 @@ class wsMonitor extends Controller
       $fileContent = explode('[', $fileContent);
       return response()->json($fileContent);
    }
+
 }

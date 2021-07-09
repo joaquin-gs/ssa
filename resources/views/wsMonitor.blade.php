@@ -14,7 +14,7 @@
             <div id="tabs">
                <ul>
                   <li>Activity</li>
-                  <li>Server help</li>
+                  <li>Server commands</li>
                   <li>Connected users</li>
                </ul>
 
@@ -45,20 +45,18 @@
                   <p>  Javascript example: {action: 'help'}</p>
                </div>
 
-               <div>
+               <div class="container">
+                  <div class="row">
+                     <div class="col-6">
+                        <div id="list">
+                        </div>
+                     </div>
+                     <div class="col-6">
+                        <label>Send a message:<input type="text" id="message" class="form-control" value=""/></label>
+                        <button type="button" id="btnSend" class="btn btn-outline-primary">Send</button>
+                     </div>
+                  </div>
                </div>
-
-               <!--div class="row justify-content-center">
-                  <div class="col-sm-3">
-                     <button type="button" class="btn btn-outline-primary" id="notifyUser">Notify user</button>
-                  </div>
-                  <div class="col-sm-3">
-                     <button type="button" class="btn btn-outline-primary" id="getHelp">Get help</button>
-                  </div>
-                  <div class="col-sm-3">
-                     <button type="button" class="btn btn-outline-primary" id="userList">Connected users</button>
-                  </div>
-               </div-->
 
             </div>
          </div>
@@ -72,6 +70,8 @@
    <script>
    $(document).ready(function($) {
       $.ajaxSetup({ headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')} });
+      var selectedUser = '';
+
       $('#tabs').jqxTabs({ width: '99%', height: 450, position: 'top'}); 
 
       $('#notifyUser').on('click', function() {
@@ -89,7 +89,6 @@
       var arr = [];
 
       $.post('wsMonitor/getLog', function(data, status, xhr) {
-         console.log(data);
          // Add field 'action' to received data.
          for (let index = 0; index < data.length; index++) {
             if (data[index] !== '') {
@@ -119,7 +118,38 @@
             { text: 'Action', datafield: 'action' },
          ],
       });
+     
 
+      $('#list').jqxListBox({ 
+         width: 250, 
+         height: 300
+      });
+      $('#list').on('select', function (event) {
+         var args = event.args;
+         if (args) {
+            //var index = args.index;
+            //var item = args.item;
+            //var originalEvent = args.originalEvent;
+            // get item's label and value.
+            //var label = item.label;
+            //var value = item.value;
+            //var type = args.type; // keyboard, mouse or null depending on how the item was selected.
+            selectedUser = args.item.label;
+         }
+      });
+
+
+      $('#tabs').on('tabclick', function (event) {
+         var tab = event.args.item;
+         if (tab == 2) {
+            window.worker.port.postMessage({ action: 'list', username: window.currentUser });
+         }
+      });
+      
+      $('#btnSend').on('click', function() {
+         var msg = $('#message').val();
+         window.worker.port.postMessage({action: 'notify', username: selectedUser, message: msg});
+      });
    });
    </script>
 @endpush
@@ -128,4 +158,7 @@
    <link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.min.css') }}">
    <link rel="stylesheet" type="text/css" href="{{ asset('css/jqx.base.css') }}">
    <link rel="stylesheet" type="text/css" href="{{ asset('css/jqx.energyblue.css') }}">
+   <style>
+      #tabs .container { padding-top: 15px; }
+   </style>
 @endpush

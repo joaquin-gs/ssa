@@ -6,7 +6,7 @@ use Ratchet\WebSocket\MessageComponentInterface;   /* Provides events onOpen(), 
 use Illuminate\Support\Facades\Log;
 
 class WebSocketController implements MessageComponentInterface {
-   // Colors used in the console.
+   // Colors used in the console output.
    private $inverse = "\033[7m";
    private $bold = "\033[1m";
    private $reset = "\033[0m";
@@ -94,11 +94,11 @@ class WebSocketController implements MessageComponentInterface {
                   }
                }
                else {
-                  $this->Log("Notification could not be delivered due to lack of 'to' field. {date('Y/m/d h:i:sa')}");
+                  $this->Log("Notification could not be delivered due to lack of 'to' field.");
                }
 
             case "list":
-               $this->showConnectedUsers();
+               $from->send(json_encode(array('cmd' => 'list', 'to' => $data->to, 'message' => $this->names)));
                break;
 
             case "help":
@@ -127,7 +127,6 @@ class WebSocketController implements MessageComponentInterface {
                break;
 
             default:
-               echo "{$this->red}Unrecognized command or action:{$this->white} {$data->action}";
                $this->Log("Unrecognized command or action: " . $data->action);
          }
       }
@@ -145,7 +144,7 @@ class WebSocketController implements MessageComponentInterface {
    
    
    public function onError(ConnectionInterface $conn, \Exception $e) {
-      $this->Log("An error has occurred: {$e->getMessage()}\n");
+      $this->Log("WebSocket Server error: {$e->getMessage()}\n");
       $conn->close();
    }
 

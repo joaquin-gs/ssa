@@ -67,7 +67,7 @@
 @section('adminlte_js')
    <script>
       $(document).ready(function($) {
-         var currentUser = "{{ Auth::user()->name }}";
+         window.currentUser = "{{ Auth::user()->name }}";
 
          // The worker variable is declared as a property
          // of the window object in order to make it global.
@@ -76,8 +76,15 @@
          window.worker.port.postMessage({ action: 'connect', username: currentUser, tab: window.location.href });
 
          window.worker.port.onmessage = function(message) {
-            //console.log(message.data);
-            $('#notifications a.nav-link span').text(message.data.msg);
+            if (message.data.cmd == 'list') {
+               if ($('#list').length) {
+                  $('#list').jqxListBox({ source: message.data.message });
+               }
+            }
+            else {
+            //$('#notifications a.nav-link span').text(message.data.msg);
+            console.log(message.data.msg);
+            }
          };
 
          window.worker.onerror = function(error) {
