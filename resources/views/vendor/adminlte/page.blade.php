@@ -83,7 +83,7 @@
             }
             else {
             //$('#notifications a.nav-link span').text(message.data.msg);
-            console.log(message.data.msg);
+               console.log(message.data.msg);
             }
          };
 

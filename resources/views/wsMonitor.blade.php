@@ -9,7 +9,8 @@
 @section('content')
 <div class="row">
    <div class="col-8 offset-2">
-      <div class="card text-center">
+      
+      <x-card title="Websocket Server monitor" theme="info" theme-mode="outline" icon="fas fa-desktop" removable>
          <div class="card-body">
             <div id="tabs">
                <ul>
@@ -60,7 +61,7 @@
 
             </div>
          </div>
-      </div>
+      </x-card>
    </div>
 </div>
 @stop
@@ -70,6 +71,31 @@
    <script>
    $(document).ready(function($) {
       $.ajaxSetup({ headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')} });
+
+      /*
+      // Markup text of a toast:
+      <div class="toast toast-error" aria-live="assertive" style="">
+         <div class="toast-progress" style="width: 26.62%;"></div>
+         <button type="button" class="toast-close-button" role="button">×</button>
+         <div class="toast-title">Messages</div>
+         <div class="toast-message">Messages to yourself are not allowed.</div>
+      </div>
+      */
+
+      toastr.options = {
+         "closeButton": true,
+         "newestOnTop": true,
+         "progressBar": true,
+         "preventDuplicates": true,
+         "showDuration": "200",
+         "hideDuration": "1000",
+         "timeOut": "6000",
+         "extendedTimeOut": "1000",
+         "showEasing": "swing",
+         "hideEasing": "linear",
+         "showMethod": "fadeIn",
+         "hideMethod": "fadeOut"
+      }
       var selectedUser = '';
 
       $('#tabs').jqxTabs({ width: '99%', height: 450, position: 'top'}); 
@@ -127,13 +153,6 @@
       $('#list').on('select', function (event) {
          var args = event.args;
          if (args) {
-            //var index = args.index;
-            //var item = args.item;
-            //var originalEvent = args.originalEvent;
-            // get item's label and value.
-            //var label = item.label;
-            //var value = item.value;
-            //var type = args.type; // keyboard, mouse or null depending on how the item was selected.
             selectedUser = args.item.label;
          }
       });
@@ -147,8 +166,22 @@
       });
       
       $('#btnSend').on('click', function() {
-         var msg = $('#message').val();
-         window.worker.port.postMessage({action: 'notify', username: selectedUser, message: msg});
+         if (selectedUser !== '') {
+            if (selectedUser !== window.currentUser) {
+               var msg = $('#message').val();
+               window.worker.port.postMessage({action: 'notify', username: selectedUser, message: msg});
+            }
+            else {
+               toastr["error"]('Messages to yourself are not allowed.', 'Messages');
+            }
+         }
+         else {
+            toastr["info"]('Choose a user from the list.', 'Messages');
+         }
+      });
+
+      $('.card-tools button.btn.btn-tool').on('click', function() {
+         window.location = '/';
       });
    });
    </script>
@@ -160,5 +193,7 @@
    <link rel="stylesheet" type="text/css" href="{{ asset('css/jqx.energyblue.css') }}">
    <style>
       #tabs .container { padding-top: 15px; }
+      .toast { opacity: 1 !important; }
+      .btn-tool { border: 1px solid darkgray; }
    </style>
 @endpush

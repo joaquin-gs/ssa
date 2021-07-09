@@ -53,7 +53,7 @@ onconnect = function(ev) {
 
       switch (e.data.action) {
          case "connect":
-            // Check if the received user name is already in the tabs list.
+            // Check if the received user name has at least one tab in AllPorts array.
             for (var j = 0; j < AllPorts.length; j++) {
                if (AllPorts[j].user == currentUser) {
                   userIsConnected = true;
