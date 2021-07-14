@@ -76,14 +76,13 @@
          window.worker.port.postMessage({ action: 'connect', username: currentUser, tab: window.location.href });
 
          window.worker.port.onmessage = function(message) {
-            if (message.data.cmd == 'list') {
-               if ($('#list').length) {
-                  $('#list').jqxListBox({ source: message.data.message });
-               }
+            // Update notifications link.
+            if (message.data.msg) {
+               $('#notifications a.nav-link span').text(message.data.msg);
             }
-            else {
-            //$('#notifications a.nav-link span').text(message.data.msg);
-               console.log(message.data.msg);
+            // Check if the function processMessage exists.
+            if (typeof processMessage === "function") {
+               processMessage(message);
             }
          };
 

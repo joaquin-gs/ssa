@@ -3,7 +3,7 @@
 @section('title', 'WebSocket Server Monitor')
 
 @section('content_header')
-<h1 class="m-0 text-dark text-center">WebSocket Server Monitor</h1>
+<h1 class="m-0 text-dark text-center">&nbsp;</h1>
 @stop
 
 @section('content')
@@ -122,7 +122,7 @@
                arr.push(elem);
             }
          }
-         // Prepare data source
+         // Prepare data source for the grid.
          var source = {
             datatype: 'json',
             localdata: arr,
@@ -131,21 +131,29 @@
             ]
          };
          var dataAdapter = new $.jqx.dataAdapter(source);
-         // Assign new source to the jqxGrid.
+         // Assign new source to the grid.
          $('#grid').jqxGrid({ source: dataAdapter });
       }, 'json')
 
       $('#grid').jqxGrid({
          theme: 'energyblue',
-         height: 395,
-         width: '100%',
+         height: 415,
+         width: '99.8%',
          altrows: true,
          columns: [
+            {
+               text: '#', sortable: false, filterable: false, editable: false,
+               groupable: false, draggable: false, resizable: false,
+               datafield: '', columntype: 'number', width: 50,
+               cellsrenderer: function (row, column, value) {
+                  return "<div style='margin:4px;'>" + (value + 1) + "</div>";
+               }
+            },
             { text: 'Action', datafield: 'action' },
          ],
       });
-     
-
+      
+      
       $('#list').jqxListBox({ 
          width: 250, 
          height: 300
@@ -184,6 +192,14 @@
          window.location = '/';
       });
    });
+
+   function processMessage(msg) {
+      if (msg.data.cmd == 'list') {
+         if ($('#list').length) {
+            $('#list').jqxListBox({ source: msg.data.message });
+         }
+      }
+   }
    </script>
 @endpush
 
@@ -193,7 +209,13 @@
    <link rel="stylesheet" type="text/css" href="{{ asset('css/jqx.energyblue.css') }}">
    <style>
       #tabs .container { padding-top: 15px; }
+
       .toast { opacity: 1 !important; }
+
       .btn-tool { border: 1px solid darkgray; }
+
+      #grid .jqx-grid-column-header, 
+      .jqx-tabs-title, 
+      .card-title { font-weight: bold; }
    </style>
 @endpush
