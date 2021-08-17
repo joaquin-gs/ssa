@@ -68,31 +68,32 @@
    <script>
       $(document).ready(function($) {
          window.currentUser = "{{ Auth::user()->name }}";
+         let tabID = null;
 
          // The worker variable is declared as a property
          // of the window object in order to make it global.
-         window.worker = new SharedWorker("{{ asset('/js/worker.js') }}");
-         window.worker.port.start();
-         window.worker.port.postMessage({ action: 'connect', username: currentUser, tab: window.location.href });
+         var worker = new SharedWorker("{{ asset('/js/worker.js') }}");
+         worker.port.start();
 
-         window.worker.port.onmessage = function(message) {
-            // Update notifications link.
-            if (message.data.msg) {
-               $('#notifications a.nav-link span').text(message.data.msg);
+         worker.port.onmessage = function(message) {
+            // Update notifications link on top navigation bar.
+            if (message.data.totalMsg) {
+               $('#notifications a.nav-link span').text(message.data.totalMsg);
             }
-            // Check if the function processMessage exists.
-            if (typeof processMessage === "function") {
-               processMessage(message);
+            if (message.data.type == 'CONNECTION') {
+               tabID = message.data.tabID;
+               worker.port.postMessage({ action: 'connect', username: window.currentUser });
             }
          };
 
-         window.worker.onerror = function(error) {
+         worker.onerror = function(error) {
             console.log('Worker error: ' + error.message + '\n');
          };
 
          window.addEventListener('beforeunload', function(ev) {
-            window.worker.port.postMessage({ action: 'close', username: currentUser, tab: window.location.href });
-            window.worker.port.close();
+            worker.port.postMessage({ action: 'close', connectionID: tabID, username: window.currentUser });
+            console.log('Closing tab: ' + tabID);
+            worker.port.close();
          });
 
       });

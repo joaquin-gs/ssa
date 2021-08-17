@@ -73,7 +73,7 @@
       $.ajaxSetup({ headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')} });
 
       /*
-      // Markup text of a toast:
+      // Markup text of a toast, just for reference:
       <div class="toast toast-error" aria-live="assertive" style="">
          <div class="toast-progress" style="width: 26.62%;"></div>
          <button type="button" class="toast-close-button" role="button">×</button>

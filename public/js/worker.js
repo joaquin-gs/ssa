@@ -2,12 +2,14 @@
 // This file is executed only once (when the Sharedworker is created).
 //--------------------------------------------------------------------
 
-// This array will contain objects in the format {user: <string>, port: <MessagePort>, tabURL: <string>}
+// This array will contain objects in the format {connectionID: <MessagePort>, id: <int>}
 // Such objects are the Tabs the user has opened using links/urls from the same domain.
 // If another browser is opened with the same domain, another variable (array) will be created for that browser
 // and will not include the user and the opened tabs of the first browser. This happens because the thread
 // is not shared between different browsers.
-let AllPorts = [];
+var Tabs = [];
+var counter = 0;
+var wsConnected = false;
 
 // The connection to the WebSocket Server.
 var socket = new WebSocket("ws://ssa:8090");
@@ -20,10 +22,8 @@ socket.onopen = function(e) {
 // Event handler fired when the WebSocket Server sends a message to this client.
 socket.onmessage = function(e) {
    var message = JSON.parse(e.data);
-   for (var i = 0; i < AllPorts.length; i++) {
-      if (message.to.includes(AllPorts[i].user)) {
-         AllPorts[i].port.postMessage(message);
-      }
+   for (var i=0; i < Tabs.length; i++) {
+      Tabs[i].connectionID.postMessage(message);
    }
 };
 
@@ -43,58 +43,45 @@ socket.onerror = function(error) {
 
 
 // This event is fired every time a browser tab connects to this Sharedworker.
-onconnect = function(ev) {
-   let port = ev.ports[0];
+onconnect = function(e) {
+   var conn = e.ports[0];
+   counter++;
+   Tabs.push({ connectionID: conn, id: counter });
+   // Send the connection ID to the latest connection.
+   conn.postMessage({tabID: counter, type: 'CONNECTION'});
+   //console.log('Total tabs: ' + Tabs.length);
+   
 
    // Event handler fired when a tab/window sends a message to this Sharedworker.
-   port.onmessage = function(e) {
-      let currentUser = e.data.username;
-      var userIsConnected = false;
-
+   conn.onmessage = function(e) {
+      var connection = e.data.connectionID;
       switch (e.data.action) {
          case "connect":
-            // Check if the received user name has at least one tab in AllPorts array.
-            for (var j = 0; j < AllPorts.length; j++) {
-               if (AllPorts[j].user == currentUser) {
-                  userIsConnected = true;
-               }
-            }
-
-            // Add new connected tab to AllPorts array.
-            AllPorts.push({user: currentUser, port: port, tabURL: e.data.tab});
-
-            if (!userIsConnected) {
-               // User names are added to the user list in the WebSocket Server only once.
+            if (!wsConnected) {
+               // Add the connected user name to the websocket server.
                setTimeout(() => {
-                  socket.send(JSON.stringify({action: 'connect', username: currentUser}));
-               }, 650);
+                  socket.send(JSON.stringify({action: 'connect', username: e.data.username}));
+               }, 50);
+               wsConnected = true;
+            }
+            else {
+               // User is already connected to WebSocket Server. Retrieve number of unread notifications.
+               socket.send(JSON.stringify({action: 'getTotalUnreadMessages', username: e.data.username}));
             }
             break;
-
+         
          case "close":
-            // Find the current tab URL in AllPorts array.
-            var index;
-            for (var i = 0; i < AllPorts.length; i++) {
-               if ((AllPorts[i].tabURL == e.data.tab) && (AllPorts[i].user == e.data.username)) {
-                  index = i;
-               }
-            }
-            AllPorts.splice(index, 1);
-            userIsConnected = false;
-            // Check if user has any other tab connected to the Sharedworker.
-            for (var i = 0; i < AllPorts.length; i++) {
-               if (AllPorts[i].user == e.data.username) {
-                  userIsConnected = true;
-               }
-            }
-            if (!userIsConnected) {
-               // User doesn't have more tabs opened. Remove user from WebSocket Server.
-               socket.send(JSON.stringify({action: 'disconnect', username: e.data.username}));
-            }
-            break;
+            var elem = Tabs.find(element => element.connectionID == connection);
 
-         case "notify":
-            socket.send(JSON.stringify({action: 'notify', to: currentUser, message: e.data.message}));
+            if (elem !== undefined || elem !== null) {
+               var index = Tabs.indexOf(elem);
+               Tabs.splice(index, 1);
+            }
+            //console.log('Remaining tabs: ' + Tabs.length);
+            if (Tabs.length == 0) {
+               // User doesn't have any tabs opened. Disconnect user from WebSocket Server.
+               socket.send(JSON.stringify({ action: 'disconnect', username: e.data.username }));
+            }
             break;
 
          case "list":
@@ -106,4 +93,5 @@ onconnect = function(ev) {
       } // switch
    } // port.onmessage
 
+   conn.start();
 } // onconnect

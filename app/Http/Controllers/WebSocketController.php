@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Ratchet\ConnectionInterface;   /* Provides functions send() and close() */
 use Ratchet\WebSocket\MessageComponentInterface;   /* Provides events onOpen(), onClose(), onError(), onMessage() */
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\HomeController;
 
 class WebSocketController implements MessageComponentInterface {
    // Colors used in the console output.
@@ -26,6 +27,7 @@ class WebSocketController implements MessageComponentInterface {
       $this->client = [];
       $this->clientId = [];
       $this->names= [];
+      echo " WebSocket server started... " . PHP_EOL;
    }
    
    
@@ -67,10 +69,17 @@ class WebSocketController implements MessageComponentInterface {
                   array_push($this->names, $data->username);
                   $this->Log("  " . $data->username . " has joined." . PHP_EOL);
 
+                  $totMsg = HomeController::getTotalUnreadMessages($data->username);
+                  $from->send(json_encode(array('to'=>$data->username, 'totalMsg'=>$totMsg)));
                   $this->showConnectedUsers();
                }
                break;
 
+            case "getTotalUnreadMessages":
+               $totMsg = HomeController::getTotalUnreadMessages($data->username);
+               $from->send(json_encode(array('to'=>$data->username, 'totalMsg'=>$totMsg)));
+               break;
+            
             case "disconnect":
                // Removes a user from the $names array.
                $index = array_search($data->username, $this->names);
@@ -89,7 +98,8 @@ class WebSocketController implements MessageComponentInterface {
                if (isset($data->to)) {
                   foreach ($this->client as $conn) {
                      if ($conn->resourceId != $from->resourceId) {
-                        $conn->send(json_encode(array('to' => $data->to, 'msg' => $data->message)));
+                        // Send the message to all connections except to the sender.
+                        $conn->send(json_encode(array('to'=>$data->to, 'totalMsg'=>$data->totalMsg)));
                      }
                   }
                }

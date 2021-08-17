@@ -4,7 +4,9 @@ namespace App\Listeners;
 
 use Illuminate\Notifications\Events\NotificationSent;
 use Illuminate\Queue\InteractsWithQueue;
+use App\Models\User;
 use App\wsClient;
+use Illuminate\Support\Facades\Auth;
 
 class LogNotification
 {
@@ -34,8 +36,10 @@ class LogNotification
       // $event->notifiable
       // $event->notification
       // $event->response
-      
-      //$clientSocket = new wsClient();
-      //$clientSocket->connect(array('action' => 'notify', 'to' => 'Anatolio,Joaquin,Caralampio', 'message' => $event->notification->data));
+
+      $user = $event->notifiable->name;
+      $numMessages = Auth::user()->unreadNotifications->count();
+      $clientSocket = new wsClient();
+      $clientSocket->sendMsg(array('action'=>'notify', 'to'=>$user, 'totalMsg'=>$numMessages));
    }
 }
