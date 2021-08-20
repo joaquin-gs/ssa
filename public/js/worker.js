@@ -12,7 +12,7 @@ var counter = 0;
 var wsConnected = false;
 
 // The connection to the WebSocket Server.
-var socket = new WebSocket("ws://ssa:8090");
+var socket = new WebSocket("wss://ssa:443/wss/");
 
 // Called when the WebSocket Server accepts the connection.
 socket.onopen = function(e) {
@@ -37,7 +37,7 @@ socket.onclose = function(event) {
 };
 
 socket.onerror = function(error) {
-   console.log('Error on client websocket: ', error.message);
+   console.log('Error on client websocket: ', error.data);
 };
 
 
@@ -61,7 +61,7 @@ onconnect = function(e) {
                // Add the connected user name to the websocket server.
                setTimeout(() => {
                   socket.send(JSON.stringify({action: 'connect', username: e.data.username}));
-               }, 50);
+               }, 850);
                wsConnected = true;
             }
             else {

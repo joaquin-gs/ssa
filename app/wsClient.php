@@ -18,7 +18,7 @@ class wsClient {
       \Amp\Loop::run(
          function() {
             global $x;
-            $connection = yield Client\connect('ws://ssa:8090');
+            $connection = yield Client\connect('wss://ssa:8090');
             yield $connection->send(json_encode($x));
             yield $connection->close();
             \Amp\Loop::stop();

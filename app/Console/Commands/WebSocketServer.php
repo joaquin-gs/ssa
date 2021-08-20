@@ -7,6 +7,9 @@ use Ratchet\Server\IoServer;
 use Ratchet\Http\HttpServer;
 use Ratchet\WebSocket\WsServer;
 use App\Http\Controllers\WebSocketController;
+use React\Socket\SecureServer;
+use React\Socket\Server;
+use React\EventLoop\Factory;
 
 class WebSocketServer extends Command
 {
@@ -43,6 +46,30 @@ class WebSocketServer extends Command
     */
    public function handle()
    {
+      // $loop   = Factory::create();
+      // $webSock = new SecureServer(
+      //    new Server('0.0.0.0:8090', $loop),
+      //    $loop,
+      //    array(
+      //       'local_cert'        => 'certificate.crt', // path to your cert
+      //       'local_pk'          => 'private.key', // path to your server private key
+      //       'allow_self_signed' => TRUE, // Allow self signed certs (should be false in production)
+      //       'verify_peer' => FALSE
+      //    )
+      // );
+
+      // // Ratchet magic
+      // $webServer = new IoServer(
+      //    new HttpServer(
+      //       new WsServer(
+      //          new WebSocketController()
+      //       )
+      //    ),
+      //    $webSock
+      // );
+
+      // $loop->run();
+
       $server = IoServer::factory(new HttpServer(new WsServer(new WebSocketController())), 8090);
       $server->run();
    }
